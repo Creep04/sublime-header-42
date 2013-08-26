@@ -102,13 +102,13 @@ class HeaderCommand(sublime_plugin.TextCommand):
     else:
         header += comment[0].ljust(76, '*') + comment[2].rjust(4, '*') + '\n'
         header += startline.ljust(76) + endline
-        header += startline.ljust(50)           +        ":::      :::::::: " + endline
-        header += startline + f[0].ljust(45)    +     " :+:      :+:    :+: " + endline
-        header += startline.ljust(50)           +    "+:+ +:+         +:+   " + endline
-        header += startline + self.get_mail()   + " +#+  +:+       +#+      " + endline
-        header += startline.ljust(50)           +"+#+#+#+#+#+   +#+         " + endline
-        header += startline + created.ljust(45) +   "  #+#    #+#           " + endline
-        header += startline + updated.ljust(45) +   " ###   ########.fr     " + endline
+        header += startline.ljust(50)           + "        :::      :::::::: " + endline
+        header += startline + f[0].ljust(45)    + "      :+:      :+:    :+: " + endline
+        header += startline.ljust(50)           + "    +:+ +:+         +:+   " + endline
+        header += startline + self.get_mail()   + "  +#+  +:+       +#+      " + endline
+        header += startline.ljust(50)           + "+#+#+#+#+#+   +#+         " + endline
+        header += startline + created.ljust(45) + "     #+#    #+#           " + endline
+        header += startline + updated.ljust(45) + "    ###   ########.fr     " + endline
         header += startline.ljust(76) + endline
         header += comment[1].ljust(76, '*') + comment[2].rjust(4, '*') + '\n'
 
