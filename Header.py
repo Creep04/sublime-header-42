@@ -10,33 +10,27 @@ import sublime, sublime_plugin, os, time, locale
 #
 
 class PromptHeaderCommand(sublime_plugin.WindowCommand):
-
   def run(self):
-    label = "Type project name: "
-    self.window.show_input_panel(label, "", self.on_done, None, None)
+   # label = "Type project name: "
+    self.window.active_view().run_command("header",  {"project": ""})
     pass
 
-  def on_done(self, text):
+  def on_done(self):
     try:
-      self.window.active_view().run_command("header", {"project": text})
+      self.window.active_view().run_command("header",  {"project": ""})
     except ValueError:
       pass
 
 
 #
-# Main class: create the epitech-style header.
+# Main class: create the 42-style header.
 #
 
 class HeaderCommand(sublime_plugin.TextCommand):
 
   #
-  # /!\ Find how to get this from system!
-  #
-
-  fullname = "jeremie taboada-alvarez"
-
-  #
   # Get comment type according language.
+  # Only C / C++ as been test
   #
 
   def get_comment(self):
@@ -45,7 +39,7 @@ class HeaderCommand(sublime_plugin.TextCommand):
     comments['Default']      = ['  ', '  ', '  ']
     comments['JavaScript']   = ['/**', ' *', ' */']
     comments['CSS']          = ['/**', ' *', ' */']
-    comments['C++']          = ['/*', '**', '*/']
+    comments['C++']          = ['/* ', '/* ', ' */']
     comments['Python']       = ['#', '#', '#']
     comments['CoffeeScript'] = ['#', '#', '#']
     comments['Ruby']         = ['#', '#', '#']
@@ -75,43 +69,46 @@ class HeaderCommand(sublime_plugin.TextCommand):
   #
 
   def get_mail(self):
-    return "<" + os.environ['USER'] + "@epitech.net>"
+    full = "  By: " + os.environ['USER'] + " <" + os.environ['USER'] + "@42.fr>"
+    return full.ljust(48)
 
   #
-  # Get date epitech-formated (e.g Thu Jan  3 00:22:41 2013)
+  # Get date 42-formated (e.g 2013/12/21 23:42:00)
   #
 
   def get_date(self):
 
-    # TODO:
-    # - replace 03 by  3
-    # - get day and month in english
-
-    return time.strftime("%a %b  %d %H:%M:%S %Y")
+    return time.strftime("%Y/%m/%d %H:%M:%S by")
 
   #
   # Generate header.
   #
 
-  def generate(self, project):
 
-    # get some infos
+  def generate(self, project):
 
     header = ""
     comment = self.get_comment()
     f = self.get_file_infos()
+    filename = f[0].ljust(50)
+    created = "  Created: " + self.get_date() + " " + os.environ['USER']
+    updated = "  Updated: " + self.get_date() + " " + os.environ['USER']
 
-    # generate the header
-
-    header += comment[0] + '\n'
-    header += comment[1] + " " + f[0] + " for " + project + " in " + f[1] + '\n'
-    header += comment[1] + '\n'
-    header += comment[1] + " Made by " + self.fullname + '\n'
-    header += comment[1] + " Login   " + self.get_mail() + '\n'
-    header += comment[1] + '\n'
-    header += comment[1] + " Started on  " + self.get_date() + " " + self.fullname + '\n'
-    header += comment[1] + " Last update " + self.get_date() + " " + self.fullname + '\n'
-    header += comment[2] + '\n'
+    modified_date_region = self.view.find('  Updated: ', 0)
+    if modified_date_region:
+        header += comment[1] + updated.ljust(50) + " ###   ########.fr      " + comment[2]
+    else:
+        header += comment[0] + '*'*74 + comment[2] + '\n'
+        header += comment[1] + ' '*74 + comment[2] + '\n'
+        header += comment[1] + ' '*55                 + ":::      ::::::::  " + comment[2] + '\n'
+        header += comment[1] + "  " + filename     + " :+:      :+:    :+:  " + comment[2] + '\n'
+        header += comment[1] + ' '*51             + "+:+ +:+         +:+    " + comment[2] + '\n'
+        header += comment[1] + self.get_mail() + " +#+  +:+       +#+       " + comment[2] + '\n'
+        header += comment[1] + ' '*47         + "+#+#+#+#+#+   +#+          " + comment[2] + '\n'
+        header += comment[1] + created.ljust(50) + "  #+#    #+#            " + comment[2] + '\n'
+        header += comment[1] + updated.ljust(50) + " ###   ########.fr      " + comment[2] + '\n'
+        header += comment[1] + ' '*74 + comment[2] + '\n'
+        header += comment[0] + '*'*74 + comment[2] + '\n'
 
     return header
 
@@ -120,4 +117,11 @@ class HeaderCommand(sublime_plugin.TextCommand):
   #
 
   def run(self, edit, project):
-    self.view.insert(edit, 0, self.generate(project))
+    modified_date_region = self.view.find('  Updated: ', 0)
+    if modified_date_region:
+        line = self.view.line(modified_date_region)
+        self.view.replace(edit, line, self.generate(project))
+    else:
+        self.view.insert(edit, 0, self.generate(project))
+
+    self.view.run_command('save')
