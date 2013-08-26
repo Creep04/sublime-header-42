@@ -39,7 +39,7 @@ class HeaderCommand(sublime_plugin.TextCommand):
     comments['Default']      = [' ', ' ', ' ']
     comments['JavaScript']   = ['/**', '/**', '**/']
     comments['CSS']          = ['/**', '/**', '**/']
-    comments['C++']          = ['/* ', '/* ', '/* ']
+    comments['C++']          = ['/* ', '/* ', ' */']
     comments['Python']       = ['# ', '# ', ' #']
     comments['CoffeeScript'] = ['# ', '# ', ' #']
     comments['Ruby']         = ['# ', '# ', ' #']
