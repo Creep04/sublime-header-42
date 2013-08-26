@@ -69,7 +69,7 @@ class HeaderCommand(sublime_plugin.TextCommand):
   #
 
   def get_mail(self):
-    full = "By: " + os.environ['USER'] + " <" + os.environ['USER'] + "@42.fr>"
+    full = "By: " + os.environ['USER'] + " <" + os.environ['USER'] + "@student.42.fr>"
     return full.ljust(45)
 
   #
@@ -98,7 +98,7 @@ class HeaderCommand(sublime_plugin.TextCommand):
 
     modified_date_region = self.view.find("Updated: 20", 0)
     if modified_date_region:
-        header += startline + updated.ljust(45) +   " ###   ########.fr     " + comment[2].rjust(4)
+        header += startline + updated.ljust(48) + " ###   ########.fr" + comment[2].rjust(9)
     else:
         header += comment[0].ljust(76, '*') + comment[2].rjust(4, '*') + '\n'
         header += startline.ljust(76) + endline
