@@ -21,6 +21,17 @@ class PromptHeaderCommand(sublime_plugin.WindowCommand):
     except ValueError:
       pass
 
+#
+# Main Listener: update the 42-style header.
+#
+
+class HeaderListener(sublime_plugin.EventListener):
+
+  def on_pre_save(self, view):
+    modified_date_region = view.find("Updated: 20", 0)
+
+    if modified_date_region:
+      view.run_command("header",  {"project": ""});
 
 #
 # Main class: create the 42-style header.
@@ -60,17 +71,22 @@ class HeaderCommand(sublime_plugin.TextCommand):
   # Get file infos.
   #
 
-  def get_file_infos(self):
-    full = self.view.file_name().split('/')
-    return [full.pop(), '/'.join(full)]    
+  def get_filename(self):
+    return os.path.basename(self.view.file_name() or "untitled")
+
+  #
+  # Get username
+  #
+
+  def get_user(self):
+    return os.environ['USER']
 
   #
   # Get email
   #
 
   def get_mail(self):
-    full = "By: " + os.environ['USER'] + " <" + os.environ['USER'] + "@student.42.fr>"
-    return full.ljust(45)
+    return self.get_user() + "@student.42.fr"
 
   #
   # Get date 42-formated (e.g 2013/12/21 23:42:00)
@@ -89,9 +105,10 @@ class HeaderCommand(sublime_plugin.TextCommand):
 
     header = ""
     comment = self.get_comment()
-    f = self.get_file_infos()
-    created = "Created: " + self.get_date() + " " + os.environ['USER']
-    updated = "Updated: " + self.get_date() + " " + os.environ['USER']
+    filename = self.get_filename()
+    created = "Created: " + self.get_date() + " " + self.get_user()
+    updated = "Updated: " + self.get_date() + " " + self.get_user()
+    mail = "By: " + self.get_user() + " <" + self.get_mail() + ">"
     firstline = comment[0].ljust(76, '*') + comment[2].rjust(4, '*') + '\n'
     endline = comment[2].rjust(4) + '\n'
     startline = comment[1].ljust(5)
@@ -102,13 +119,13 @@ class HeaderCommand(sublime_plugin.TextCommand):
     else:
         header += comment[0].ljust(76, '*') + comment[2].rjust(4, '*') + '\n'
         header += startline.ljust(76) + endline
-        header += startline.ljust(50)           + "        :::      :::::::: " + endline
-        header += startline + f[0].ljust(45)    + "      :+:      :+:    :+: " + endline
-        header += startline.ljust(50)           + "    +:+ +:+         +:+   " + endline
-        header += startline + self.get_mail()   + "  +#+  +:+       +#+      " + endline
-        header += startline.ljust(50)           + "+#+#+#+#+#+   +#+         " + endline
-        header += startline + created.ljust(45) + "     #+#    #+#           " + endline
-        header += startline + updated.ljust(45) + "    ###   ########.fr     " + endline
+        header += startline.ljust(50)             + "        :::      :::::::: " + endline
+        header += startline + filename.ljust(45)  + "      :+:      :+:    :+: " + endline
+        header += startline.ljust(50)             + "    +:+ +:+         +:+   " + endline
+        header += startline + mail.ljust(45)      + "  +#+  +:+       +#+      " + endline
+        header += startline.ljust(50)             + "+#+#+#+#+#+   +#+         " + endline
+        header += startline + created.ljust(45)   + "     #+#    #+#           " + endline
+        header += startline + updated.ljust(45)   + "    ###   ########.fr     " + endline
         header += startline.ljust(76) + endline
         header += comment[1].ljust(76, '*') + comment[2].rjust(4, '*') + '\n'
 
@@ -125,5 +142,3 @@ class HeaderCommand(sublime_plugin.TextCommand):
         self.view.replace(edit, line, self.generate(project))
     else:
         self.view.insert(edit, 0, self.generate(project))
-
-    self.view.run_command('save')
