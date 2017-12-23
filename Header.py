@@ -79,7 +79,7 @@ class HeaderCommand(sublime_plugin.TextCommand):
   #
 
   def get_user(self):
-    return os.environ['USER']
+    return "dtheo"
 
   #
   # Get email
